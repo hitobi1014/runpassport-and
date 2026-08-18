@@ -180,6 +180,12 @@ note/
    보일러플레이트 생성은 예외).
 6. **현재 진행 중인 티켓의 상세(작업 순서, 예시 등)는 `ai/current-ticket.md`에 적는다.**
    develop-ticket.md는 전체 목록이라 한 티켓의 세부 계획까지 담으면 목록이 너무 길어진다.
+7. **티켓을 DONE 처리하고 목록에서 삭제하기 전, 완료 메모 전문(배운 점·의사결정·스코프
+   변경 사유)을 `ai/ticket-archive.md`에 시간순으로 옮겨 남긴다.** Notion "Run패스포트
+   티켓 아카이브" DB에도 같은 내용을 요약해서 페이지로 등록하고, `티켓` 속성으로 원본
+   Notion 티켓과 관계형으로 연결한다 (`레포` 속성은 이 저장소 기준 `runpassport-android`로
+   설정). 1번 규칙대로 DONE 티켓을 삭제하면 "왜 이렇게 했는지"가 함께 사라지는데, 그
+   기록을 로컬(전문)과 Notion(요약 + 원본 티켓 관계형 링크)에 나눠 보존하기 위함이다.
 
 ## 주니어 개발자를 위한 PR 전 체크리스트
 
@@ -227,8 +233,10 @@ note/
 - `note/기능명세.md` — 노션 기획 문서를 Android 앱 구현 관점으로 재해석한 기능 명세
 - `ai/develop-ticket.md` — 전체 개발 티켓 목록 (source of truth)
 - `ai/current-ticket.md` — 현재 진행 중인 티켓 상세
+- `ai/ticket-archive.md` — DONE 처리 후 삭제된 티켓의 완료 메모 전문 (시간순)
 - `ai/code-review/` — `/mj-code-review`, `/ticket-review` 결과 저장 위치
 - `ai/response.md` — `/request` 커맨드 결과 저장 위치
+- `ai/git-pr.md` — `/create-pr` 결과의 클립보드 복사 실패 시 대체 저장 위치
 
 ## Testing
 
