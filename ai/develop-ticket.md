@@ -8,9 +8,9 @@
 
 ## 현재 상태 요약
 
-- **마지막 업데이트**: 2026-08-18 (`/sync-ticket` 기반, 노션 'Run패스포트 Develop' DB 영역=프론트엔드 전체 20건 반영, `note/기능명세.md`로 세부 개발 항목 보강)
-- **지금 진행 중**: [W1] Android 프로젝트 셋업 (Kotlin, Compose, Hilt, Room, Retrofit) — 노션 상태 In Progress
-- **다음 할 일**: [W1] 카카오 로그인 SDK 연동, [W1] 네이버 지도 Android SDK 연동
+- **마지막 업데이트**: 2026-08-19 (로그인 티켓 스코프 변경 — OAuth 제외, 사전 생성 계정 콤보박스 로그인으로 전환. `ai/response.md`, Notion 티켓 본문에 결정 배경 기록)
+- **지금 진행 중**: [W1] 사전 생성 계정 로그인 (Supabase Email/Password 콤보박스 선택) — 노션 상태 In Progress
+- **다음 할 일**: [W1] 네이버 지도 Android SDK 연동
 - **막힌 것**: 없음
 
 ---
@@ -41,27 +41,21 @@
 - **작업 순서**:
 -->
 
-## [W1 · 프로젝트 셋업 & 외부 API 확보] Android 프로젝트 셋업 (Kotlin, Compose, Hilt, Room, Retrofit)
-
-- 노션 링크: https://app.notion.com/p/3b49c9e2d47881ef8589f7ecac7db7f2
-- 상태: 진행중
-- 세부 개발 항목:
-  - [ ] Kotlin + Jetpack Compose 프로젝트 기본 셋업 (현재는 기본 템플릿 상태 — Hilt/Room/Retrofit 의존성 미추가)
-  - [ ] Hilt DI 그래프 구성 (Application 클래스, 기본 모듈)
-  - [ ] Room, Retrofit/OkHttp 의존성을 `gradle/libs.versions.toml`에 등록
-- 완료 조건: 앱이 실기기에서 빌드/실행됨 / Hilt DI 그래프가 정상 동작함
-- 선행 티켓: 없음
-
-## [W1 · 프로젝트 셋업 & 외부 API 확보] 카카오 로그인 SDK 연동 및 토큰 → Supabase 세션 교환
+## [W1 · 프로젝트 셋업 & 외부 API 확보] 사전 생성 계정 로그인 (Supabase Email/Password 콤보박스 선택)
 
 - 노션 링크: https://app.notion.com/p/3b49c9e2d4788166a1d0c0a2b1ea694d
 - 상태: 진행중
 - 세부 개발 항목:
-  - [ ] 카카오 로그인 SDK 연동, 로그인 버튼/플로우 구현
-  - [ ] 발급된 카카오 토큰을 서버로 전달해 Supabase Auth 세션으로 교환
+  - [ ] Supabase Auth 이메일/비밀번호 계정 사전 생성(seed, 5~10개)
+  - [ ] 안드로이드 로그인 화면: 계정 콤보박스(드롭다운) 선택 → signInWith(Email) 처리
   - [ ] 로그인 세션 유지 (재실행 시 로그인 상태 복원)
-- 완료 조건: 실기기에서 카카오 로그인 성공 / Supabase 세션이 생성되고 유지됨
+- 완료 조건: 사전 생성 계정 목록이 콤보박스에 노출됨 / 계정 선택 후 로그인 시 Supabase 세션(JWT)이 정상 발급됨 / 발급된 세션으로 백엔드 API 호출이 인증됨
 - 선행 티켓: [AND] Android 프로젝트 셋업 (Kotlin, Compose, Hilt, Room, Retrofit)
+- 결정 배경: 관광공사 공모전 데모 목적상 OAuth(카카오/구글) 연동 제외. 심사 시연이 목적이라
+  OAuth 콘솔 등록·동의항목 심사·딥링크 콜백 디버깅 비용이 핵심 기능(GPS 인증/스탬프) 구현
+  시간을 깎아먹기 때문. Supabase Auth의 auth.uid() 기반 RLS는 로그인 방식과 무관하게
+  동일 동작하므로 실서비스 전환 시에도 아키텍처에 영향 없음 (2026-08-19 결정, 상세는
+  `ai/current-ticket.md`/`ai/response.md` 참고).
 
 ## [W1 · 프로젝트 셋업 & 외부 API 확보] 네이버 지도 Android SDK 연동 및 렌더링 테스트
 
