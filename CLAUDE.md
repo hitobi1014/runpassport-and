@@ -225,7 +225,7 @@ note/
 | `/create-pr` | 현재 브랜치와 main의 차이를 분석해 GitHub PR 본문 작성 |
 | `/mj-code-review` | 현재 변경사항(diff)을 위 코드 리뷰 기준으로 리뷰 |
 | `/request` | 임의의 질문/요청 처리, 결과는 `ai/response.md`에 기록 |
-| `/sync-ticket` | 노션 'Run패스포트 마일스톤'/'Run패스포트 Develop' DB를 `ai/develop-ticket.md`에 동기화 |
+| `/sync-ticket` | 노션 'Run패스포트 마일스톤'/'Run패스포트 Develop' DB(담당 영역=프론트엔드)와 `ai/develop-ticket.md`를 대조해 불일치 리포트, 반영은 건별 확인 후 처리 |
 | `/ticket-review` | `ai/current-ticket.md`의 완료 조건 대비 구현 코드를 리뷰, 결과는 `ai/code-review/`에 기록 |
 
 ## 참고 문서 위치
