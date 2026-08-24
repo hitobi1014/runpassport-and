@@ -24,6 +24,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,10 +35,47 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.runpassport.app.ui.theme.Blue
 import com.runpassport.app.ui.theme.Gray600
 import com.runpassport.app.ui.theme.LightGray
 import com.runpassport.app.ui.theme.RunpassportTheme
+
+
+/**
+ * Stateful Composable (ViewModel과 연결)
+ * 실제 앱에서 사용
+ */
+@Composable
+fun LoginRoute(
+    onLoginSuccess: () -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: LoginViewModel = hiltViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsState()
+
+    if (uiState.isLoginSuccess) {
+        onLoginSuccess()
+    }
+
+    // 기존 LoginScreen 호출 (Stateless)
+    LoginScreen(
+        accounts = uiState.accounts,
+        selectedAccount = uiState.selectedAccount,
+        onAccountSelected = viewModel::onAccountSelected,
+        onLoginClick = viewModel::onLoginClick,
+        modifier = modifier
+    )
+
+    // 로딩/에러 표시 (선택사항)
+    if (uiState.isLoading) {
+        // CircularProgressIndicator 등 => TODO 구현하기
+    }
+
+    uiState.errorMessage?.let { error ->
+        // TODO Snackbar나 AlertDialog로 에러 표시
+    }
+}
 
 @Composable
 fun LoginScreen(
@@ -163,19 +201,19 @@ fun LoginScreen(
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun LoginScreenPreview() {
-    RunpassportTheme {
-        LoginScreen(
-            accounts = listOf(
-                "러너001 - 김도운 (서울)",
-                "러너002 - 이준호 (부산)",
-                "러너003 - 박서연 (제주)"
-            ),
-            selectedAccount = "러너001 - 김도운 (서울)",
-            onAccountSelected = {},
-            onLoginClick = {}
-        )
-    }
-}
+//@Preview(showBackground = true, showSystemUi = true)
+//@Composable
+//fun LoginScreenPreview() {
+//    RunpassportTheme {
+//        LoginScreen(
+//            accounts = listOf(
+//                "러너001 - 김도운 (서울)",
+//                "러너002 - 이준호 (부산)",
+//                "러너003 - 박서연 (제주)"
+//            ),
+//            selectedAccount = "러너001 - 김도운 (서울)",
+//            onAccountSelected = {},
+//            onLoginClick = {}
+//        )
+//    }
+//}

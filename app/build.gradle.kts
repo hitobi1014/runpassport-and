@@ -1,8 +1,18 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt.android)
+}
+
+val localProperties = Properties().apply {
+    val propsFile = rootProject.file("local.properties")
+    if (propsFile.exists()) {
+        propsFile.inputStream().use { load(it) }
+    }
 }
 
 android {
@@ -12,6 +22,15 @@ android {
     }
 
     defaultConfig {
+        buildConfigField(
+            "String", "SUPABASE_URL",
+            "\"${localProperties.getProperty("supabase.url", "http://10.0.2.2:54321")}\""
+        )
+        buildConfigField(
+            "String", "SUPABASE_ANON_KEY",
+            "\"${localProperties.getProperty("supabase.anon.key", "")}\""
+        )
+
         applicationId = "com.runpassport.app"
         minSdk = 26
         targetSdk = 37
@@ -34,6 +53,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -42,6 +62,16 @@ kotlin {
 }
 
 dependencies {
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.hilt.navigation.compose)
+
+    // supabase
+    implementation(libs.supabase.postgrest.kt)
+    implementation(libs.supabase.auth.kt)
+    implementation(libs.ktor.client.android)
+    implementation(libs.kotlinx.serialization.json)
+
+    // 기존 의존성
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3)
