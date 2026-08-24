@@ -14,6 +14,7 @@ description: 변경사항을 분석해 Conventional Commits 형식 메시지를 
 ## 절차
 
 1. `git status --short`로 변경된 파일 목록을 확인한다.
+   - 단, 마크다운 파일은 제외한다 (.md)
 2. `git diff --staged`로 staged 변경사항을 확인한다. staged가 없으면 `git diff HEAD`로
    워킹트리 변경사항을 대신 분석하고, 이 경우 어떤 파일을 add할지 채팅에 먼저 알려준다.
 3. 변경사항이 서로 다른 관심사(예: 기능 코드 + 무관한 리팩토링, 두 개의 독립적인 기능)에
