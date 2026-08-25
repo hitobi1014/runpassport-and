@@ -1,6 +1,5 @@
 package com.runpassport.app.ui.screen.login
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -13,17 +12,24 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,14 +38,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.runpassport.app.ui.theme.Blue
 import com.runpassport.app.ui.theme.Gray600
 import com.runpassport.app.ui.theme.LightGray
-import com.runpassport.app.ui.theme.RunpassportTheme
 
 
 /**
@@ -50,30 +57,49 @@ import com.runpassport.app.ui.theme.RunpassportTheme
 fun LoginRoute(
     onLoginSuccess: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: LoginViewModel = hiltViewModel()
+    viewModel: LoginViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     if (uiState.isLoginSuccess) {
         onLoginSuccess()
     }
 
-    // 기존 LoginScreen 호출 (Stateless)
-    LoginScreen(
-        accounts = uiState.accounts,
-        selectedAccount = uiState.selectedAccount,
-        onAccountSelected = viewModel::onAccountSelected,
-        onLoginClick = viewModel::onLoginClick,
-        modifier = modifier
-    )
+    // errorMessage 생길 때마다 Snackbar 띄움, 다 보여준 뒤 상태 초기화
+    LaunchedEffect(uiState.errorMessage) {
+        uiState.errorMessage?.let { message ->
+            snackbarHostState.showSnackbar(message)
+            viewModel.onErrorMessageShown()
+        }
+    }
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { padding ->
+        // 기존 LoginScreen 호출 (Stateless)
+        LoginScreen(
+            modifier = Modifier.padding(padding),
+            accounts = uiState.accounts,
+            selectedAccount = uiState.selectedAccount,
+            password = uiState.password,
+            onAccountSelected = viewModel::onAccountSelected,
+            onPasswordChanged = viewModel::onPasswordChanged,
+            onLoginClick = viewModel::onLoginClick,
+//            modifier = modifier
+        )
+    }
 
     // 로딩/에러 표시 (선택사항)
     if (uiState.isLoading) {
-        // CircularProgressIndicator 등 => TODO 구현하기
-    }
-
-    uiState.errorMessage?.let { error ->
-        // TODO Snackbar나 AlertDialog로 에러 표시
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.3f)) // 반투명 스크림
+                .pointerInput(Unit) {}, // 터치 이벤트 통과x
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
+        }
     }
 }
 
@@ -81,7 +107,9 @@ fun LoginRoute(
 fun LoginScreen(
     accounts: List<String>,
     selectedAccount: String?,
+    password: String,
     onAccountSelected: (String) -> Unit,
+    onPasswordChanged: (String) -> Unit,
     onLoginClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -171,7 +199,23 @@ fun LoginScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        // 비밀번호 입력 필드
+        OutlinedTextField(
+            value = password,
+            onValueChange = onPasswordChanged,
+            label = { Text("비밀번호") },
+            placeholder = { Text("비밀번호를 입력하세요") },
+            visualTransformation = PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Password,
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions(
+                onDone = { onLoginClick() }
+            ),
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
+        )
 
         // 로그인 버튼
         Button(

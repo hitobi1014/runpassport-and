@@ -18,6 +18,7 @@ data class LoginUiState(
     val accounts: List<String> = emptyList(),
     val accountsMap: Map<String, User> = emptyMap(), // 추가: display → User 매핑
     val selectedAccount: String? = null,
+    val password: String = "",
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
     val isLoginSuccess: Boolean = false
@@ -52,7 +53,7 @@ class LoginViewModel @Inject constructor(
                     // display label과 User 객체를 매핑
                     val accountsMap = users.associateBy(
                         keySelector = { user ->
-                            "${user.nickname ?: user.email} - ${user.displayName ?: "사용자"}"
+                            user.email
                         },
                         valueTransform = { it }
                     )
@@ -92,21 +93,41 @@ class LoginViewModel @Inject constructor(
     }
 
     /**
+     * 비밀번호 변경
+     */
+    fun onPasswordChanged(password: String) {
+        _uiState.update { it.copy(password = password) }
+    }
+
+    fun onErrorMessageShown() {
+        _uiState.update { it.copy(errorMessage = null) }
+    }
+
+    /**
      * 로그인 버튼 클릭 (문제 2에서 구현)
      */
     fun onLoginClick() {
+        Log.d("LoginViewModel", "로그인 버튼 클릭")
         val selectedAccount = _uiState.value.selectedAccount ?: return
+        Log.d(
+            "LoginViewModel",
+            "선택된 계정: ${_uiState.value.selectedAccount}, map: ${_uiState.value.accountsMap[selectedAccount]}"
+        )
         val user = _uiState.value.accountsMap[selectedAccount] ?: return
+        val password = _uiState.value.password // 실제 입력된 비밀번호
+
+        // 비밀번호 입력 검증
+        if (password.isBlank()) {
+            _uiState.update { it.copy(errorMessage = "비밀번호를 입력해주세요") }
+            return
+        }
 
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
 
-            // 테스트 환경에서는 비밀번호가 사전에 정해져 있다고 가정 => TODO 필요없음
-            // 실제 프로덕션에서는 비밀번호 입력 필드 필요
-            val testPassword = "test1234"
-
-            authRepository.login(user.email, testPassword)
+            authRepository.login(user.email, password)
                 .onSuccess { accessToken ->
+                    Log.d("LoginViewModel", "로그인 성공 발급토큰: ${accessToken}, user: ${user.email}")
                     // 토큰 저장
                     tokenManager.saveAccessToken(accessToken)
 
